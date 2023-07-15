@@ -146,3 +146,42 @@ The receptive fields were calculated for the pixel at image center, indicated by
 followwar@gmail.com
 
 Any discussions or concerns are welcomed!
+
+
+# 记录
+## 安装
+```bash
+# 创建anaconda环境
+conda create -n psmnet python=3.7
+# 检查本机cuda版本: CUDA Version: 11.4
+# 安装pytorch(1.6.0+)和torchvision(0.5.0)==>原repo要求的版本
+conda install pytorch==1.12.1 torchvision==0.13.1 cudatoolkit=11.3 -c pytorch
+
+pip3 install opencv-python
+```
+检查pytorch是否安装成功
+```python
+import torch
+torch.cuda.is_available()  # 检查是否可用cuda
+torch.zeros([3,3])    # 检查cpu是否可以创建tensor
+torch.zeros([3,3], device='cuda')    # 检查gpu是否可以创建tensor
+```
+下载Scene Flow数据集上的`预训练模型`并进行测试
+```bash
+下载地址：https://drive.google.com/file/d/1xoqkQ2NXik1TML_FMUTNZJFAHrhLdKZG/view
+在项目文件夹PSMNet下新建文件夹:pretrained_model/scene_flow/
+并将下载的模型复制到新建的文件夹中
+```
+下载Scene Flow数据集的Sample进行测试 \
+测试图片下载地址：https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlowDatasets.en.html#downloads  \
+下载[Example pack](https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlow/assets/Sampler.tar.gz)  \
+将下载的数据解压到`/PSMNet/test_img_data/`中，即在此文件夹中存在`Sampler`文件夹。  \
+测试命令：
+```bash
+python3 Test_img.py  \
+--loadmodel ./pretrained_model/scene_flow/pretrained_sceneflow.tar  \
+--leftimg ./test_img_data/Sampler/FlyingThings3D/RGB_cleanpass/left/0006.png \
+--rightimg ./test_img_data/Sampler/FlyingThings3D/RGB_cleanpass/right/0006.png
+```
+图像的大小为540*960，用自己的图像测试一下！
+
