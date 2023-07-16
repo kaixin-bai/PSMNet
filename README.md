@@ -173,7 +173,7 @@ torch.zeros([3,3], device='cuda')    # 检查gpu是否可以创建tensor
 并将下载的模型复制到新建的文件夹中
 ```
 下载Scene Flow数据集的Sample进行测试 \
-测试图片下载地址：https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlowDatasets.en.html#downloads  \
+测试图片[下载地址](https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlowDatasets.en.html#downloads)  \
 下载[Example pack](https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlow/assets/Sampler.tar.gz)  \
 将下载的数据解压到`/PSMNet/test_img_data/`中，即在此文件夹中存在`Sampler`文件夹。  \
 测试命令：
@@ -185,3 +185,5 @@ python3 Test_img.py  \
 ```
 图像的大小为540*960，用自己的图像测试一下！
 
+## 训练
+下载数据集
