@@ -111,7 +111,7 @@ class PSMNet(nn.Module):
         refimg_fea = self.feature_extraction(left)  # [1,32,136,240]
         targetimg_fea = self.feature_extraction(right)  # [1,32,136,240]
 
-        # matching, cost: [1,64,48,136,240]
+        # matching, cost: [1,64,48,136,240], self.maxdisp对应论文中的D, 即 [batch_size, 特征64维度, 192//4, H/4, W/4]
         if self.device == 'cpu':
             cost = Variable(
                 torch.FloatTensor(refimg_fea.size()[0], refimg_fea.size()[1] * 2, self.maxdisp // 4, refimg_fea.size()[2],
@@ -122,14 +122,14 @@ class PSMNet(nn.Module):
                                   refimg_fea.size()[2],
                                   refimg_fea.size()[3]).zero_()).cuda()
 
-        for i in range(self.maxdisp // 4):  # self.maxdisp:192
+        for i in range(self.maxdisp // 4):  # self.maxdisp:192, 192//4=48， refimg_fea.size()[1]=32
             if i > 0:
                 cost[:, :refimg_fea.size()[1], i, :, i:] = refimg_fea[:, :, :, i:]
                 cost[:, refimg_fea.size()[1]:, i, :, i:] = targetimg_fea[:, :, :, :-i]
-            else:
+            else:  # 0:32放ref的特征图，32:64放target的特征图
                 cost[:, :refimg_fea.size()[1], i, :, :] = refimg_fea
                 cost[:, refimg_fea.size()[1]:, i, :, :] = targetimg_fea
-        cost = cost.contiguous()
+        cost = cost.contiguous()  # 为了确保后续操作的正确和高效，使用cost.contiguous()将其转换为连续的存储方式
 
         cost0 = self.dres0(cost)  # [1,32,48,136,240]
         cost0 = self.dres1(cost0) + cost0
@@ -161,7 +161,7 @@ class PSMNet(nn.Module):
 
         cost3 = F.upsample(cost3, [self.maxdisp, left.size()[2], left.size()[3]], mode='trilinear') # from [1,1,48,136,240] to [1,1,192,544,960]
         cost3 = torch.squeeze(cost3, 1)  # [1,192,544,960]
-        pred3 = F.softmax(cost3, dim=1)  # [1,64,24,68,120]
+        pred3 = F.softmax(cost3, dim=1)  # [1,192，544，960]
         # For your information: This formulation 'softmax(c)' learned "similarity"
         # while 'softmax(-c)' learned 'matching cost' as mentioned in the paper.
         # However, 'c' or '-c' do not affect the performance because feature-based cost volume provided flexibility.

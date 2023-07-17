@@ -132,7 +132,7 @@ class feature_extraction(nn.Module):
         output_branch4 = F.upsample(output_branch4, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear')  # [1,32,136,240]
 
         output_feature = torch.cat(
-            (output_raw, output_skip, output_branch4, output_branch3, output_branch2, output_branch1), 1)  # [1,320,136,240]
+            (output_raw, output_skip, output_branch4, output_branch3, output_branch2, output_branch1), 1)  # [1,320,136,240], 这里的320=64+128+32+32+32+32
         output_feature = self.lastconv(output_feature)  # [1,32,136,240]
 
         return output_feature
