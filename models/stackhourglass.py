@@ -117,12 +117,12 @@ class PSMNet(nn.Module):
                 torch.FloatTensor(refimg_fea.size()[0], refimg_fea.size()[1] * 2, self.maxdisp // 4, refimg_fea.size()[2],
                                   refimg_fea.size()[3]).zero_())
         elif self.device == 'gpu':
-            cost = Variable(
+            cost = Variable(  # [1,64,48,136,240]
                 torch.FloatTensor(refimg_fea.size()[0], refimg_fea.size()[1] * 2, self.maxdisp // 4,
                                   refimg_fea.size()[2],
                                   refimg_fea.size()[3]).zero_()).cuda()
 
-        for i in range(self.maxdisp // 4):
+        for i in range(self.maxdisp // 4):  # self.maxdisp:192
             if i > 0:
                 cost[:, :refimg_fea.size()[1], i, :, i:] = refimg_fea[:, :, :, i:]
                 cost[:, refimg_fea.size()[1]:, i, :, i:] = targetimg_fea[:, :, :, :-i]
@@ -131,19 +131,19 @@ class PSMNet(nn.Module):
                 cost[:, refimg_fea.size()[1]:, i, :, :] = targetimg_fea
         cost = cost.contiguous()
 
-        cost0 = self.dres0(cost)
+        cost0 = self.dres0(cost)  # [1,32,48,136,240]
         cost0 = self.dres1(cost0) + cost0
 
-        out1, pre1, post1 = self.dres2(cost0, None, None)
+        out1, pre1, post1 = self.dres2(cost0, None, None)  # out1:[1,32,48,136,240], pre1:[1,64,24,68,120], post1:[1,64,24,68,120]
         out1 = out1 + cost0
 
-        out2, pre2, post2 = self.dres3(out1, pre1, post1)
+        out2, pre2, post2 = self.dres3(out1, pre1, post1)  # shape same as above
         out2 = out2 + cost0
 
-        out3, pre3, post3 = self.dres4(out2, pre1, post2)
+        out3, pre3, post3 = self.dres4(out2, pre1, post2)  # shape same as above
         out3 = out3 + cost0
 
-        cost1 = self.classif1(out1)
+        cost1 = self.classif1(out1)  # [1,1,48,136,240]
         cost2 = self.classif2(out2) + cost1
         cost3 = self.classif3(out3) + cost2
 
@@ -159,13 +159,13 @@ class PSMNet(nn.Module):
             pred2 = F.softmax(cost2, dim=1)
             pred2 = disparityregression(self.maxdisp, self.device)(pred2)
 
-        cost3 = F.upsample(cost3, [self.maxdisp, left.size()[2], left.size()[3]], mode='trilinear')
-        cost3 = torch.squeeze(cost3, 1)
-        pred3 = F.softmax(cost3, dim=1)
+        cost3 = F.upsample(cost3, [self.maxdisp, left.size()[2], left.size()[3]], mode='trilinear') # from [1,1,48,136,240] to [1,1,192,544,960]
+        cost3 = torch.squeeze(cost3, 1)  # [1,192,544,960]
+        pred3 = F.softmax(cost3, dim=1)  # [1,64,24,68,120]
         # For your information: This formulation 'softmax(c)' learned "similarity"
         # while 'softmax(-c)' learned 'matching cost' as mentioned in the paper.
         # However, 'c' or '-c' do not affect the performance because feature-based cost volume provided flexibility.
-        pred3 = disparityregression(self.maxdisp, self.device)(pred3)
+        pred3 = disparityregression(self.maxdisp, self.device)(pred3)  # [1,1,544,960]
 
         if self.training:
             return pred1, pred2, pred3

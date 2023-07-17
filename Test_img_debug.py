@@ -83,9 +83,9 @@ def test(imgL, imgR):
         imgR = imgR.cuda()
 
     with torch.no_grad():
-        disp = model(imgL, imgR)
+        disp = model(imgL, imgR)  # [1,1,544,960]
 
-    disp = torch.squeeze(disp)
+    disp = torch.squeeze(disp)  # [544,960]
     pred_disp = disp.data.cpu().numpy()
 
     return pred_disp
