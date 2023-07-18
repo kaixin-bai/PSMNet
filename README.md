@@ -159,6 +159,7 @@ conda install pytorch==1.12.1 torchvision==0.13.1 cudatoolkit=11.3 -c pytorch
 
 pip3 install opencv-python
 pip3 install chardet  (current version 5.1.0)
+pip3 install tensorboard tensorboardX
 ```
 [chardet用处](https://www.liaoxuefeng.com/wiki/1016959663602400/1183255880134144)
 
@@ -193,4 +194,8 @@ python3 Test_img.py  \
 ```bash
 python3 main.py --maxdisp 192 --model stackhourglass --datapath /data/net/dl_data/ProjectDatasets_bkx/sceneflow --epoch 10 --savemodel ./trained_model/
 ```
-报错：  \
+tensorboard可视化:  
+```bash
+tensorboard --logdir=runs
+tensorboard --logdir=logs
+```
