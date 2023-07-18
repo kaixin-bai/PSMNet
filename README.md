@@ -190,7 +190,7 @@ python3 Test_img.py  \
 图像的大小为540*960，用自己的图像测试一下！
 
 ## 训练
-下载数据集 \
+下载数据集
 ```bash
 python3 main.py --maxdisp 192 --model stackhourglass --datapath /data/net/dl_data/ProjectDatasets_bkx/sceneflow --epoch 10 --savemodel ./trained_model/
 ```
