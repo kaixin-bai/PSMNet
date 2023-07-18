@@ -158,7 +158,10 @@ conda create -n psmnet python=3.7
 conda install pytorch==1.12.1 torchvision==0.13.1 cudatoolkit=11.3 -c pytorch
 
 pip3 install opencv-python
+pip3 install chardet  (current version 5.1.0)
 ```
+[chardet用处](https://www.liaoxuefeng.com/wiki/1016959663602400/1183255880134144)
+
 检查pytorch是否安装成功
 ```python
 import torch
@@ -186,4 +189,8 @@ python3 Test_img.py  \
 图像的大小为540*960，用自己的图像测试一下！
 
 ## 训练
-下载数据集
+下载数据集 \
+```bash
+python3 main.py --maxdisp 192 --model stackhourglass --datapath /data/net/dl_data/ProjectDatasets_bkx/sceneflow --epoch 10 --savemodel ./trained_model/
+```
+报错：  \
