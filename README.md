@@ -156,6 +156,8 @@ conda create -n psmnet python=3.7
 # 检查本机cuda版本: CUDA Version: 11.4
 # 安装pytorch(1.6.0+)和torchvision(0.5.0)==>原repo要求的版本
 conda install pytorch==1.12.1 torchvision==0.13.1 cudatoolkit=11.3 -c pytorch
+# 服务器上cuda版本为12.1，pytorch论坛说明目前官网最新的11.8兼容最新的cuda【扯淡，根本不行】
+# conda install pytorch torchvision pytorch-cuda=11.8 -c pytorch -c nvidia
 
 pip3 install opencv-python
 pip3 install chardet  (current version 5.1.0)
@@ -204,8 +206,8 @@ tensorboard --logdir=logs
 ## TODO
 ONNX部署代码  \
 tensorrt代码  \
-代码修改：  \
-1. 对于任何用到shape, size返回值的参数时，例如：tensor.view(tensor.size(0), -1)这类操作，避免直接使用tensor.size的返回值，而是加上int转换，tensor.view(int(tensor.size(0)), -1)
-2. 对于nn.upsample或者nn.functional.interpolate函数，使用scale_factor指定倍率，而不是使用size参数指定大小
-3. 对于reshape, view操作时，-1的指定请放在batch维度，其他维度可以计算出来即可，batch维度禁止指定为大于-1的明确数字
-4. torch.onnx.export指定dynamic_axes参数，并且只指定batch维度，不指定其他维度，我们只需要动态batch, 相对动态的宽高有其他方案
+代码修改：
+1. 对于任何用到shape, size返回值的参数时，例如：`tensor.view(tensor.size(0), -1)`这类操作，避免直接使用`tensor.size`的返回值，而是加上`int`转换，`tensor.view(int(tensor.size(0)), -1)`
+2. 对于`nn.upsample`或者`nn.functional.interpolate`函数，使用`scale_factor`指定倍率，而不是使用size参数指定大小
+3. 对`于reshape, view`操作时，-1的指定请放在`batch`维度，其他维度可以计算出来即可，`batch`维度禁止指定为大于-1的明确数字
+4. `torch.onnx.export`指定`dynamic_axes`参数，并且只指定`batch`维度，不指定其他维度，我们只需要动态`batch`, 相对动态的宽高有其他方案
