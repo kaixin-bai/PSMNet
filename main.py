@@ -49,7 +49,7 @@ all_left_img, all_right_img, all_left_disp, test_left_img, test_right_img, test_
 
 TrainImgLoader = torch.utils.data.DataLoader(
     DA.myImageFloder(all_left_img, all_right_img, all_left_disp, True),
-    batch_size=12, shuffle=True, num_workers=8, drop_last=False)  # batch_size= 12, 我本机只能跑到batch_size为2
+    batch_size=2, shuffle=True, num_workers=8, drop_last=False)  # batch_size= 12, 我本机只能跑到batch_size为2
 
 TestImgLoader = torch.utils.data.DataLoader(
     DA.myImageFloder(test_left_img, test_right_img, test_left_disp, False),
@@ -152,7 +152,6 @@ def test(imgL, imgR, disp_true):
     else:
         loss = F.l1_loss(img[mask],
                          disp_true[mask])  # torch.mean(torch.abs(img[mask]-disp_true[mask]))  # end-point-error
-
     return loss.data.cpu()
 
 
@@ -191,17 +190,22 @@ def main():
             'train_loss': total_train_loss / len(TrainImgLoader),
         }, savefilename)
 
+        # ------------- TEST ------------------------------------------------------------
+        total_test_loss = 0
+        for batch_idx, (imgL, imgR, disp_L) in enumerate(TestImgLoader):
+            test_loss = test(imgL, imgR, disp_L)
+            print('Iter %d test loss = %.3f' % (batch_idx, test_loss))
+            total_test_loss += test_loss
+
+        print('total test loss = %.3f' % (total_test_loss / len(TestImgLoader)))
+        average_test_loss = total_test_loss / len(TestImgLoader)
+        # Record the average test loss to TensorBoard
+        writer.add_scalar('Test/AverageLoss', average_test_loss, epoch)
+        # ----------------------------------------------------------------------------------
+
     print('full training time = %.2f HR' % ((time.time() - start_full_time) / 3600))
 
-    # ------------- TEST ------------------------------------------------------------
-    total_test_loss = 0
-    for batch_idx, (imgL, imgR, disp_L) in enumerate(TestImgLoader):
-        test_loss = test(imgL, imgR, disp_L)
-        print('Iter %d test loss = %.3f' % (batch_idx, test_loss))
-        total_test_loss += test_loss
 
-    print('total test loss = %.3f' % (total_test_loss / len(TestImgLoader)))
-    # ----------------------------------------------------------------------------------
     # SAVE test information
     savefilename = args.savemodel + 'testinformation.tar'
     torch.save({
