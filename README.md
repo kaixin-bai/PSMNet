@@ -199,3 +199,13 @@ tensorboard可视化:
 tensorboard --logdir=runs
 tensorboard --logdir=logs
 ```
+
+
+## TODO
+ONNX部署代码  \
+tensorrt代码  \
+代码修改：  \
+1. 对于任何用到shape, size返回值的参数时，例如：tensor.view(tensor.size(0), -1)这类操作，避免直接使用tensor.size的返回值，而是加上int转换，tensor.view(int(tensor.size(0)), -1)
+2. 对于nn.upsample或者nn.functional.interpolate函数，使用scale_factor指定倍率，而不是使用size参数指定大小
+3. 对于reshape, view操作时，-1的指定请放在batch维度，其他维度可以计算出来即可，batch维度禁止指定为大于-1的明确数字
+4. torch.onnx.export指定dynamic_axes参数，并且只指定batch维度，不指定其他维度，我们只需要动态batch, 相对动态的宽高有其他方案

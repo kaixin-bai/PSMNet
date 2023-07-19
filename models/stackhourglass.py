@@ -143,7 +143,7 @@ class PSMNet(nn.Module):
         out3, pre3, post3 = self.dres4(out2, pre1, post2)  # shape same as above
         out3 = out3 + cost0
 
-        cost1 = self.classif1(out1)  # [1,1,48,136,240]
+        cost1 = self.classif1(out1)  # [1,1,48,136,240] 推理时的shape
         cost2 = self.classif2(out2) + cost1
         cost3 = self.classif3(out3) + cost2
 

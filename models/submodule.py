@@ -119,17 +119,36 @@ class feature_extraction(nn.Module):
         output = self.layer3(output_raw)  # [1,128,136,240]
         output_skip = self.layer4(output)  # [1,128,136,240]
 
+        # 将F.upsample修改为使用scale_factor指定倍率，而不是使用size参数指定大小，防止后续tensorrt报错
+        # 用F.interpolate代替F.unsample，因为F.unsample在Pytorch高版本中被弃用；参数scale_factor应为tuple，分别代表高和宽的放大倍率，参数align_corners设置为False以保证兼容性和预期
+        # 每个分支都根据自己的尺度进行了独立的上采样。这种方法在进行模型转换（如PyTorch到TensorRT）时更稳定，可以避免因使用size参数而引发的问题。
         output_branch1 = self.branch1(output_skip)  # [1,32,2,3]
-        output_branch1 = F.upsample(output_branch1, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear') # [1,32,136,240]
+        # output_branch1 = F.upsample(output_branch1, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear') # [1,32,136,240]
+        scale_factor_branch1_h = output_skip.size()[2] / output_branch1.size()[2]
+        scale_factor_branch1_w = output_skip.size()[3] / output_branch1.size()[3]
+        output_branch1 = F.interpolate(output_branch1, scale_factor=(scale_factor_branch1_h, scale_factor_branch1_w),
+                                       mode='bilinear', align_corners=False)
 
         output_branch2 = self.branch2(output_skip)  # [1,32,4,7]
-        output_branch2 = F.upsample(output_branch2, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear')  # [1,32,136,240]
+        # output_branch2 = F.upsample(output_branch2, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear')  # [1,32,136,240]
+        scale_factor_branch2_h = output_skip.size()[2] / output_branch2.size()[2]
+        scale_factor_branch2_w = output_skip.size()[3] / output_branch2.size()[3]
+        output_branch2 = F.interpolate(output_branch2, scale_factor=(scale_factor_branch2_h, scale_factor_branch2_w),
+                                       mode='bilinear', align_corners=False)
 
         output_branch3 = self.branch3(output_skip)  # [1,32,8,15]
-        output_branch3 = F.upsample(output_branch3, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear')  # [1,32,136,240]
+        # output_branch3 = F.upsample(output_branch3, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear')  # [1,32,136,240]
+        scale_factor_branch3_h = output_skip.size()[2] / output_branch3.size()[2]
+        scale_factor_branch3_w = output_skip.size()[3] / output_branch3.size()[3]
+        output_branch3 = F.interpolate(output_branch3, scale_factor=(scale_factor_branch3_h, scale_factor_branch3_w),
+                                       mode='bilinear', align_corners=False)
 
         output_branch4 = self.branch4(output_skip)  # [1,32,17,30]
-        output_branch4 = F.upsample(output_branch4, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear')  # [1,32,136,240]
+        # output_branch4 = F.upsample(output_branch4, (output_skip.size()[2], output_skip.size()[3]), mode='bilinear')  # [1,32,136,240]
+        scale_factor_branch4_h = output_skip.size()[2] / output_branch4.size()[2]
+        scale_factor_branch4_w = output_skip.size()[3] / output_branch4.size()[3]
+        output_branch4 = F.interpolate(output_branch4, scale_factor=(scale_factor_branch4_h, scale_factor_branch4_w),
+                                       mode='bilinear', align_corners=False)
 
         output_feature = torch.cat(
             (output_raw, output_skip, output_branch4, output_branch3, output_branch2, output_branch1), 1)  # [1,320,136,240], 这里的320=64+128+32+32+32+32
