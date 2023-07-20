@@ -49,7 +49,7 @@ all_left_img, all_right_img, all_left_disp, test_left_img, test_right_img, test_
 
 TrainImgLoader = torch.utils.data.DataLoader(
     DA.myImageFloder(all_left_img, all_right_img, all_left_disp, True),
-    batch_size=12, shuffle=True, num_workers=8, drop_last=False)  # batch_size= 12, 我本机只能跑到batch_size为2
+    batch_size=14, shuffle=True, num_workers=8, drop_last=False)  # batch_size= 12, 我本机只能跑到batch_size为2, 服务器上设置14
 
 TestImgLoader = torch.utils.data.DataLoader(
     DA.myImageFloder(test_left_img, test_right_img, test_left_disp, False),
