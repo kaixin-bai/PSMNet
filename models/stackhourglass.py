@@ -111,6 +111,7 @@ class PSMNet(nn.Module):
         refimg_fea = self.feature_extraction(left)  # [1,32,136,240]
         targetimg_fea = self.feature_extraction(right)  # [1,32,136,240]
 
+        # 这里开始构建cost 3D矩阵了
         # matching, cost: [1,64,48,136,240], self.maxdisp对应论文中的D, 即 [batch_size, 特征64维度, 192//4, H/4, W/4]
         if self.device == 'cpu':
             cost = Variable(
