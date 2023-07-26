@@ -183,7 +183,8 @@ def main():
         print('epoch %d total training loss = %.3f' % (epoch, total_train_loss / len(TrainImgLoader)))
 
         # SAVE
-        savefilename = args.savemodel + '/checkpoint_' + str(epoch) + '.tar'
+        # savefilename = args.savemodel + '/checkpoint_' + str(epoch) + '.tar'
+        savefilename = os.path.join(args.savemodel, f'checkpoint_{epoch}.tar')
         torch.save({
             'epoch': epoch,
             'state_dict': model.state_dict(),
